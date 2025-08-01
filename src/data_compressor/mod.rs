@@ -14,7 +14,7 @@ fn decompress_bytes_zstd(input: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
 
 #[inline]
 fn compress_bytes_zstd(input: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
-    let mut encoder = Encoder::new(Vec::new(), 22)?; // Понижаем уровень сжатия с 22 до 3
+    let mut encoder = Encoder::new(Vec::new(), 22)?;
     encoder.write_all(input)?;
     encoder.finish().map_err(Into::into)
 }

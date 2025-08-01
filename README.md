@@ -22,7 +22,7 @@ This tool allows you to store binary files in your domain's DNS records and retr
 ### Encoding a File into DNS Records
 
 ```bash
-dns-binary-storage to-records --domain your.domain.com --input-path ./your-file.jpg --output-path ./dns-records.txt
+dns-binary-storage to-records your.domain.com --input-path ./your-file.jpg --output-path ./dns-records.txt
 ```
 
 This command will create a `dns-records.txt` file containing DNS records in the format:
@@ -37,7 +37,7 @@ You can upload these records to your DNS zone (for example, via the Cloudflare c
 ### Extracting a File from DNS
 
 ```bash
-dns-binary-storage doh --domain your.domain.com --output-path ./recovered-file.jpg
+dns-binary-storage doh your.domain.com --output-path ./recovered-file.jpg
 ```
 
 This command will:
