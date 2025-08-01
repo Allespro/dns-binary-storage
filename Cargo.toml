@@ -1,0 +1,20 @@
+[package]
+name = "dns-binary-storage"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+minreq = { version = "2.14.0", features = ["https-native"] }
+sonic-rs = { version = "0.3", default-features = false }
+serde = { version = "1", default-features = false, features = ["derive"] }
+pico-args = "0.5.0"
+zstd = { version = "0.13", default-features = false, features = ["thin"] }
+base64ct = { version = "1.8", features = ["alloc"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+debug = false
+panic = "abort"
+strip = true

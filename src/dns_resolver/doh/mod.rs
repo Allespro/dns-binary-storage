@@ -1,7 +1,5 @@
-use ureq;
+use minreq;
 use sonic_rs::{Deserialize};
-
-// cloudflare-dns.com
 
 #[derive(Deserialize)]
 pub struct DNSResponse {
@@ -15,24 +13,37 @@ pub struct Answer {
 }
 
 pub fn resolve(domain: &str, resolver: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let body: String = ureq::get(resolver)
-        .query("name", domain)
-        .query("type", "TXT")
-        .header("accept", "application/dns-json")
-        .call()?.body_mut().read_to_string()?;
+    let binding = minreq::get(resolver)
+        .with_param("name", domain)
+        .with_param("type", "TXT")
+        .with_header("accept", "application/dns-json")
+        .send()?;
 
-    let p: DNSResponse = sonic_rs::from_str(&body).unwrap();
-    let mut filtered_data = String::new();
+    let p: DNSResponse = sonic_rs::from_str(binding.as_str()?).unwrap();
+
+    // pfix, daata
+    let mut records: Vec<(u16, String)> = Vec::new();
+
     for answer in p.answer {
         if let Some(content) = answer.data.strip_prefix('"').and_then(|s| s.strip_suffix('"')) {
-            // Проверяем формат "N:base64data"
+            // format should be "N:base64data"
             if let Some((prefix, data)) = content.split_once(':') {
                 if prefix.chars().all(|c| c.is_ascii_digit()) {
-                    filtered_data.push_str(data);
-                    continue;
+                    if let Ok(prefix_num) = prefix.parse::<u16>() {
+                        records.push((prefix_num, data.to_string()));
+                    }
                 }
             }
         }
     }
+
+    // sort by 16bit pfix
+    records.sort_by_key(|&(prefix, _)| prefix);
+
+    let mut filtered_data = String::new();
+    for (_, data) in records {
+        filtered_data.push_str(&data);
+    }
+
     Ok(filtered_data)
 }
